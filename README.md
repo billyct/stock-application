@@ -33,3 +33,16 @@ $ gulp
 * 关于flux部分，使用了[redux](https://github.com/rackt/redux) 所以我们使用store的时候都使用reducer来做，可以参考其开发文档，其实大概只要明白每次发生action的时候只要不要去直接改变原来的state而是改变它的copy就好
 * 关于redux，遵循[ducks-modular-redux](https://github.com/erikras/ducks-modular-redux),个人觉得屌屌的，比起其他的简明很多
 * eslint 可以参考.eslintrc 当然其实就是把tab定义为2个，然后请使用'，而不是"来定义字符串什么的
+
+## 之中遇到的小问题
+
+关于npm 无法安装 老是 跳出来 
+```npm ERR! phantomjs@1.9.18 install: `node install.js` ```
+我也不知道为啥，不过好像可以在前面找到
+```
+Download already available at /var/folders/9q/b_2yrz1507x0xwvgzp_yxzl00000gn/T/phantomjs/phantomjs-1.9.8-macosx.zip
+Extracting zip contents
+Error extracting zip
+Phantom installation failed Invalid or unsupported zip format. No END header found undefined
+```
+类似这样的错误，然后只要将比如我这个```/var/folders/9q/b_2yrz1507x0xwvgzp_yxzl00000gn/T/phantomjs/phantomjs-1.9.8-macosx.zip```这个文件rm -rf掉就可以了，好像之前也常常遇到然后没怎么管，今天发现这个可行。如果你也遇到这个问题可以试试。
