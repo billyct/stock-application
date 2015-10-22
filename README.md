@@ -13,6 +13,13 @@ $ gulp
 
 打开 [http://localhost:3000](http://localhost:3000)
 
+## 关于里面的几个component
+* Icon 是一个svg icon的component 跟gulp 的svg 合并的最后路径有点关联
+* Clearfix 其实就是 ```<div class="clearfix"></div> //{clear: both}```而已
+* Confirm 是一个自定义confirm弹出的插件，具体用法可以看那个demo component
+* Modal 其实就是一个包裹confirm这种东西的外面的那种container
+
+这些component都是比较简单的，具体可以看源码，如果你也有比较常用的component 可以pull request我，hah
 
 ## 一些东西
 
