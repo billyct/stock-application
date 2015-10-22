@@ -5,8 +5,8 @@ a start kit for creat an application with react and redux
 ## 使用
 
 ```bash
-$ git clone https://github.com/billyct/about-react-redux-start-kit.git dest_dir
-$ cd dest_dir
+$ git clone https://github.com/billyct/about-react-redux-start-kit.git
+$ cd about-react-redux-start-kit
 $ npm install
 $ gulp
 ```
