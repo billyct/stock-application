@@ -2,68 +2,84 @@ var path = require('path');
 var webpack = require('webpack');
 var _ = require('lodash');
 
+var AssetsPlugin = require('assets-webpack-plugin');
+
 var PACKAGE_JSON = require('./package.json');
 
 
-
+//semantic插件的路径
 var semanticModulesPath = path.resolve(__dirname, 'src/semantic/definitions/modules');
+
+var semanticAlias = {
+  'semantic-transition':  semanticModulesPath + '/transition.js',
+  'semantic-dropdown': semanticModulesPath + '/dropdown.js',
+};
 
 //node modules 路径
 var nodeModulesPath = path.resolve(__dirname, 'node_modules');
 
-
 var config = {
+  entry: {
+    app : './src/index',
+    vendor: []
+  },
 
-  entry: [
-    'webpack-dev-server/client?http://localhost:9000',
-    'webpack/hot/only-dev-server',
-    './src/index'
-  ],
+
   resolve: {
     alias: {
-
-      //如果需要试用semantic的插件的话，下面的是示例代码
-      //'semantic-transition':  semanticModulesPath + '/transition.js',
-      //'semantic-dropdown': semanticModulesPath + '/dropdown.js',
-
 
       //fix react
       'react/lib': nodeModulesPath + 'react/lib',
       //fix history
       //'history/lib': nodeModulesPath + 'history/lib',
 
-
       'react' : nodeModulesPath + '/react/dist/react.min.js',
       //'es6-promise' : nodeModulesPath + '/es6-promise/dist/es6-promise.min.js',
-      //'history' : nodeModulesPath + '/history/umd/History.min.js', //不知道怎么搞会有污染的代码出现在打包的index里面
+      //'history' : nodeModulesPath + '/history/umd/History.min.js',
       'jquery' : nodeModulesPath + '/jquery/dist/jquery.min.js',
       'react-redux': nodeModulesPath + '/react-redux/dist/react-redux.min.js',
       'react-router': nodeModulesPath + '/react-router/umd/ReactRouter.min.js',
       'redux': nodeModulesPath + '/redux/dist/redux.min.js'
+
+      //no lodash,redux-localstorage,redux-thunk,fetch
     }
   },
+
+
   output: {
     path: path.join(__dirname, 'dist'),
-    filename: 'index.js',
+    filename: 'index.[chunkhash].js',
     publicPath: '/dist/'
   },
-
-  devtool: 'cheap-module-eval-source-map',
+  devtool : 'hidden-sourcemap',//production模式下不需要sourcemap
 
   plugins: [
-    new webpack.HotModuleReplacementPlugin(),
+    new webpack.optimize.CommonsChunkPlugin(/* chunkName= */'vendor', /* filename= */'vendor.bundle.js'),
 
     new webpack.DefinePlugin({
-      '__ENV__': JSON.stringify('development')
-    })
+      '__ENV__': JSON.stringify('production')
+    }),
+    //from react-starter
+    new webpack.PrefetchPlugin('react'),
+    new webpack.PrefetchPlugin('jquery'),
+
+    new webpack.optimize.UglifyJsPlugin({
+      compressor: {
+        warnings: false
+      }
+    }),
+    new webpack.optimize.OccurenceOrderPlugin(true),
+    new webpack.NoErrorsPlugin(),
+    new AssetsPlugin()
   ],
   module: {
     loaders: [
       {
         test: /\.js$/,
-        loaders: ['react-hot', 'babel?stage=0'],//if use babel promise feature etc..?optional[]=runtime
+        loaders: ['babel?stage=0'],//if use babel promise feature etc..?optional[]=runtime
+        //fix [BABEL] Note: The code generator has deoptimised the styling of '/dropdown.js' as it exceeds the max of '100KB
         exclude: /node_modules|semantic/,
-        include: __dirname,
+        include: path.resolve(__dirname, 'src'),
       },
       {
         test: /\.scss$/,
@@ -85,11 +101,16 @@ var config = {
       {
         test: /semantic\/definitions\/modules\/(\w+)+.js/,
         loader: 'imports?$=jquery,jQuery=jquery'
-      }
+      },
+
     ],
-    noParse: []
+
+    noParse : [
+
+    ]
   }
 };
+
 
 var no_parses = [];
 var deps = _.keys(PACKAGE_JSON.dependencies);
@@ -100,7 +121,10 @@ _.each(deps, function(dep) {
   }
 });
 
+config.resolve.alias = _.assign(config.resolve.alias, semanticAlias);//加入semantic的插件
 config.module.noParse = no_parses;
+config.entry.vendor = deps.concat(_.keys(semanticAlias));
+
 
 
 module.exports = config;
