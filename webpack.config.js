@@ -23,23 +23,25 @@ var config = {
     alias: {
 
       //如果需要试用semantic的插件的话，下面的是示例代码
-      //'semantic-transition':  semanticModulesPath + '/transition.js',
-      //'semantic-dropdown': semanticModulesPath + '/dropdown.js',
+      'semantic-transition':  semanticModulesPath + '/transition.js',
+      'semantic-popup': semanticModulesPath + '/popup.js',
 
 
       //fix react
-      'react/lib': nodeModulesPath + 'react/lib',
-      //fix history
-      //'history/lib': nodeModulesPath + 'history/lib',
-
-
-      'react' : nodeModulesPath + '/react/dist/react.min.js',
-      //'es6-promise' : nodeModulesPath + '/es6-promise/dist/es6-promise.min.js',
-      //'history' : nodeModulesPath + '/history/umd/History.min.js', //不知道怎么搞会有污染的代码出现在打包的index里面
-      'jquery' : nodeModulesPath + '/jquery/dist/jquery.min.js',
-      'react-redux': nodeModulesPath + '/react-redux/dist/react-redux.min.js',
-      'react-router': nodeModulesPath + '/react-router/umd/ReactRouter.min.js',
-      'redux': nodeModulesPath + '/redux/dist/redux.min.js'
+      //'react/lib': nodeModulesPath + '/react/lib',
+      //'react-redux/lib': nodeModulesPath + '/react-redux/lib',
+      //
+      ////fix history
+      ////'history/lib': nodeModulesPath + 'history/lib',
+      //
+      //
+      //'react' : nodeModulesPath + '/react/dist/react.min.js',
+      ////'es6-promise' : nodeModulesPath + '/es6-promise/dist/es6-promise.min.js',
+      ////'history' : nodeModulesPath + '/history/umd/History.min.js', //不知道怎么搞会有污染的代码出现在打包的index里面
+      //'jquery' : nodeModulesPath + '/jquery/dist/jquery.min.js',
+      //'react-redux': nodeModulesPath + '/react-redux/dist/react-redux.min.js',
+      //'react-router': nodeModulesPath + '/react-router/umd/ReactRouter.min.js',
+      //'redux': nodeModulesPath + '/redux/dist/redux.min.js'
     }
   },
   output: {
@@ -52,7 +54,6 @@ var config = {
 
   plugins: [
     new webpack.HotModuleReplacementPlugin(),
-
     new webpack.DefinePlugin({
       '__ENV__': JSON.stringify('development')
     })
@@ -74,13 +75,13 @@ var config = {
         loaders: ['style', 'css', 'autoprefixer?browsers=last 2 version', 'less']
       },
       { test: /\.(png|jpg|jpeg|gif|svg)$/, loader: 'url-loader?limit=10000' },
-      { test: /\.(woff|woff2)$/, loader: 'url-loader?limit=100000' },
+      { test: /\.(woff|woff2)$/, loader: 'url-loader?limit=10000' },
 
 
       //loader fix react plugins
-      {test: /ReactRouter(\.min)?\.js$/, loader: 'imports?React=react' },
-      {test: /react\-redux(\.min)?\.js$/, loader: 'imports?React=react' },
-
+      //{test: /ReactRouter(\.min)?\.js$/, loader: 'imports?React=react' },
+      //{test: /react\-redux(\.min)?\.js$/, loader: 'imports?React=react' },
+      //
       //for jquery plugins
       {
         test: /semantic\/definitions\/modules\/(\w+)+.js/,
@@ -91,16 +92,16 @@ var config = {
   }
 };
 
-var no_parses = [];
-var deps = _.keys(PACKAGE_JSON.dependencies);
-
-_.each(deps, function(dep) {
-  if(config.resolve.alias[dep]) {
-    no_parses.push(config.resolve.alias[dep]);
-  }
-});
-
-config.module.noParse = no_parses;
+//var no_parses = [];
+//var deps = _.keys(PACKAGE_JSON.dependencies);
+//
+//_.each(deps, function(dep) {
+//  if(config.resolve.alias[dep]) {
+//    no_parses.push(config.resolve.alias[dep]);
+//  }
+//});
+//
+//config.module.noParse = no_parses;
 
 
 module.exports = config;

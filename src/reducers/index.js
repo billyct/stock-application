@@ -1,7 +1,14 @@
 import {combineReducers} from 'redux';
-import models from './models';
+import _ from 'lodash';
+import { routeReducer } from 'redux-simple-router';
 
 
-export default combineReducers({
-  models
-});
+import products from './products';
+
+
+export default combineReducers(_.assign({},
+  {products},
+  {
+    routing : routeReducer
+  }
+));

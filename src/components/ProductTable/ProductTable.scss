@@ -1,0 +1,11 @@
+.row {
+  &__popup {
+    width: 300px;
+  }
+
+  &__icon {
+    display: block !important;
+    margin-top: -5px !important;
+    margin-left: -5px !important;
+  }
+}

@@ -1,9 +1,14 @@
 import React, {Component, PropTypes} from 'react';
 
+import {IndexLink} from 'react-router';
+
 import Icon from '../components/Icon';
 import ClearFix from '../components/ClearFix';
 
 import './styles/app.scss';
+
+import 'semantic-transition';
+import 'semantic-popup';
 
 class App extends Component {
   render() {
@@ -11,14 +16,27 @@ class App extends Component {
     const block = 'app';
 
     return (
-      <div className={block}>
-        <div className={`${block}__header`}>
-          <Icon className={`${block}__logo`} name='rose' size='l' />
-          <h1 className={`${block}__title`}>about react redux start kit</h1>
-          <ClearFix/>
+      <div className={`${block}`}>
+
+        <div className='ui menu stackable'>
+
+          <div className='ui text container'>
+
+            <IndexLink to='/' className='header item'>
+              <Icon name='flower' size='m' className={`${block}__logo`}/>
+               STOCK
+            </IndexLink>
+
+
+          </div>
+
         </div>
-        <div className={`${block}__body`}>
+
+
+        <div className='ui text container'>
+
           {this.props.children}
+
         </div>
       </div>
 

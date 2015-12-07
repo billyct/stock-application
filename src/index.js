@@ -5,52 +5,74 @@ import { Router, Route, IndexRoute} from 'react-router';
 
 import thunk from 'redux-thunk';
 
-import createBrowserHistory from 'history/lib/createBrowserHistory'
-let history = createBrowserHistory()
+import { syncReduxAndRouter } from 'redux-simple-router';
+import createBrowserHistory from 'history/lib/createBrowserHistory';
+
 
 import reducers from './reducers';
 
 import App from './containers/App';
-import ModelPage from './containers/ModelPage';
+import DashboardPage from './containers/DashboardPage';
+import ProductEditorPage from './containers/ProductEditorPage';
+import ProductPage from './containers/ProductPage';
 
 import persistStateLocalStorage from 'redux-localstorage';
-//import { devTools, persistState } from 'redux-devtools'
-//import { DevTools, DebugPanel, LogMonitor } from 'redux-devtools/lib/react';
+
+import {__DEV_TOOL__} from './constants';
+import { devTools, persistState } from 'redux-devtools'
+import { DevTools, DebugPanel, LogMonitor } from 'redux-devtools/lib/react';
 
 
-//store.js
-let store;
 
-const finalCreateStore = compose(
+let finalCreateStore = __DEV_TOOL__ ? compose(
+  // Provides support for DevTools:
+  devTools(),
+  // Lets you write ?debug_session=<name> in address bar to persist debug sessions
+  persistState(window.location.href.match(/[?&]debug_session=([^&]+)\b/))
+)(createStore) : createStore;
 
-  //devTools(),
+finalCreateStore = compose(
   applyMiddleware(thunk), //apply thunk middleware
   persistStateLocalStorage([
-    'models'
+    'products'
   ], {
-    key : 'THE_STORAGE_KEY'
+    key : 'stock'
   })
-)(createStore);
+)(finalCreateStore);
 
-store = finalCreateStore(reducers);
 
-//<DebugPanel top right bottom>
-//  <DevTools store={store} monitor={LogMonitor} />
-//</DebugPanel>
-//index
+
+let history = createBrowserHistory();
+let store = finalCreateStore(reducers);
+
+syncReduxAndRouter(history, store);
+
 
 
 React.render(
-  <Provider store={store}>
-    {() =>
-      <Router history={history}>
-        <Route path='/' component={App}>
-          <IndexRoute component={ModelPage} />
-          <Route path='models' component={ModelPage} />
-        </Route>
-      </Router>
+  <div>
+    <Provider store={store}>
+      {() =>
+        <Router history={history}>
+          <Route path='/' component={App}>
+            <IndexRoute component={DashboardPage} />
+            <Route path='dashboard' component={DashboardPage}>
+              <Route path='products'>
+                <Route path='create' component={ProductEditorPage}/>
+                <Route path=':id' component={ProductPage}/>
+              </Route>
+            </Route>
+          </Route>
+        </Router>
+      }
+    </Provider>
+    {
+      __DEV_TOOL__ &&
+      <DebugPanel top left bottom>
+        <DevTools store={store} monitor={LogMonitor} />
+      </DebugPanel>
     }
-  </Provider>
+  </div>
   ,
   document.getElementById('app')
 );
