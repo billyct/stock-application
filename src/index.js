@@ -9,6 +9,7 @@ import { syncReduxAndRouter } from 'redux-simple-router';
 import {createHistory, useBasename} from 'history';
 
 
+
 import reducers from './reducers';
 
 import App from './containers/App';
@@ -42,11 +43,10 @@ finalCreateStore = compose(
 )(finalCreateStore);
 
 
-
-
 let history = useBasename(createHistory)({
   basename: '/stock-application'
-})
+});
+
 let store = finalCreateStore(reducers);
 
 syncReduxAndRouter(history, store);
