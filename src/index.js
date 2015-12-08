@@ -6,7 +6,7 @@ import { Router, Route, IndexRoute} from 'react-router';
 import thunk from 'redux-thunk';
 
 import { syncReduxAndRouter } from 'redux-simple-router';
-import createBrowserHistory from 'history/lib/createBrowserHistory';
+import {createHistory, useBasename} from 'history';
 
 
 import reducers from './reducers';
@@ -43,7 +43,10 @@ finalCreateStore = compose(
 
 
 
-let history = createBrowserHistory();
+
+let history = useBasename(createHistory)({
+  basename: '/stock-application'
+})
 let store = finalCreateStore(reducers);
 
 syncReduxAndRouter(history, store);
