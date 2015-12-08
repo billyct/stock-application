@@ -18,6 +18,8 @@ class ProductTableRow extends Component {
       plus: 0,
       minus: 0,
 
+      alias: '',
+
       error: ''
     };
   }
@@ -56,9 +58,11 @@ class ProductTableRow extends Component {
 
     this.setState({
       count : parseInt(count, 10) + parseInt(plus, 10)
+    }, () => {
+      this.handleSaveCount();
     });
 
-    this.handleSaveCount();
+
   }
 
   handleMinusCount() {
@@ -66,14 +70,30 @@ class ProductTableRow extends Component {
 
     this.setState({
       count : parseInt(count, 10) - parseInt(minus, 10)
+    }, () => {
+      this.handleSaveCount();
     });
 
-    this.handleSaveCount();
+  }
+
+
+  handleSaveAlias(alias) {
+
+    alias.name = this.state.alias;
+
+    this.props.handleSaveAlias(alias);
+
+    this.setState({
+      alias : ''
+    });
+
+    $(`.${BUTTON_POPUP}`).popup('hide');
+
   }
 
   render() {
 
-    let {data} = this.props;
+    let {data, aliases} = this.props;
 
     const block = 'row';
 
@@ -81,26 +101,33 @@ class ProductTableRow extends Component {
     return (
 
       <tr>
-        {data.flag.map((index, i) =>
-            <td key={`${i}_${index}`}>{index}</td>
+        {data.flag.split('_').map((indexAlias, indexFeature) =>
+            <td key={`${indexFeature}_${indexAlias}`}>
+
+
+              <a className={`ui button basic mini ${BUTTON_POPUP}`}>{aliases[indexFeature][indexAlias]}</a>
+
+              <div className={`ui popup top left transition hidden ${block}__popup`}>
+                <div className='ui action input fluid'>
+                  <input type='text'
+                         value={this.state.alias}
+                         onChange={this.handleChange.bind(this)}
+                         name='alias'/>
+                  <button
+                    className='ui teal mini button'
+                    onClick={this.handleSaveAlias.bind(this, {indexFeature, indexAlias})}>
+                    保存
+                  </button>
+                </div>
+              </div>
+
+            </td>
         )}
 
         <td>
-          <a className={`ui button basic mini ${BUTTON_POPUP}`}>{this.state.count}</a>
 
-          <div className={`ui popup top left transition hidden ${block}__popup`}>
-            <div className='ui action input fluid'>
-              <input type='text'
-                     value={this.state.count}
-                     onChange={this.handleChange.bind(this)}
-                     name='count'/>
-              <button
-                className='ui teal mini button'
-                onClick={this.handleSaveCount.bind(this)}>
-                保存
-              </button>
-            </div>
-          </div>
+          <div className='ui orange horizontal label'>{this.state.count}</div>
+
         </td>
 
         <td>

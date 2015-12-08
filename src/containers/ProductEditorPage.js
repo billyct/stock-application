@@ -21,31 +21,19 @@ class ProductEditorPage extends Component {
       id : '',
       name : '',
       features : [],
-      data: []
+      data: [],
+      aliases: []
     };
-
-    //这里的代码不是很干净
-    let content = (
-      <ProductForm actions={actions} product={currentProduct} history={history}/>
-    );
 
     if (params.id) {
       currentProduct = _.find(products, {id : params.id});
-
       if (!currentProduct) {
-        content = (
-          <div className="ui active loader"></div>
-        );
-      } else {
-        content = (
-          <ProductForm actions={actions} product={currentProduct} history={history}/>
-        );
+        return <NoMatchPage />
       }
-
     }
 
     return (
-      <div>{content}</div>
+      <ProductForm actions={actions} product={currentProduct} history={history}/>
     );
   }
 }

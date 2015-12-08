@@ -6,12 +6,13 @@ import {Promise} from 'es6-promise';
 const CREATE = 'app/products/CREATE';
 const UPDATE = 'app/products/UPDATE';
 const UPDATE_DATA = 'app/products/UPDATE_DATA';
+const UPDATE_ALIAS = 'app/products/UPDATE_ALIAS';
 const REMOVE = 'app/products/REMOVE';
 
 
 export default function reducers(state = [], action = {}) {
 
-  let stateTemp = _.clone(state), index, indexData;
+  let stateTemp = _.clone(state), index, indexData, indexAlias;
 
   switch (action.type) {
 
@@ -38,6 +39,16 @@ export default function reducers(state = [], action = {}) {
 
     return stateTemp;
 
+
+  case UPDATE_ALIAS:
+    index = _.findIndex(stateTemp, product => product.id === action.data.id);
+
+    let {indexFeature,indexAlias} = action.data.alias;
+    stateTemp[index].aliases[indexFeature][indexAlias] = action.data.alias.name;
+
+
+    return stateTemp;
+
   case REMOVE:
     _.remove(stateTemp, (product) => product.id === action.data.product.id);
     return stateTemp;
@@ -61,11 +72,17 @@ export function removeProduct(product) {
 }
 
 
+
 export function updateProductData({id, data}) {
   return {type: UPDATE_DATA, data: {id, data}}
 }
 
-export function createProductWithGenerate({id, name, features, data}) {
+export function updateProductAlias({id, alias}) {
+  return {type: UPDATE_ALIAS, data: {id, alias}};
+};
+
+
+export function createProductWithGenerate({id, name, features, data, aliases}) {
   return (dispatch) => {
 
     return new Promise((resolved, reject) => {
@@ -75,14 +92,19 @@ export function createProductWithGenerate({id, name, features, data}) {
         let indexRecorded = arguments[1] ? arguments[1] : [];
         let indexRecordedClone;
 
-        for(let index = 1; index <= parseInt(features[indexFeature].count, 10); index++) {
+        aliases[indexFeature] = [];
+
+        for(let index = 0; index < parseInt(features[indexFeature].count, 10); index++) {
+
+          aliases[indexFeature].push((index + 1).toString());
+
           if(indexFeature === features.length - 1) {
             //最后一个feature的时候
             //最后一个参数是第一个feature的数字，
             indexRecordedClone = _.clone(indexRecorded);
             indexRecordedClone.push(index);
             data.push({
-              flag: indexRecordedClone,
+              flag: indexRecordedClone.join('_'), //这里如果是数组的话，在查找的时候数组如果是长度2的是没有顺序的WTF
               count : 0
             });
           } else {
@@ -95,12 +117,62 @@ export function createProductWithGenerate({id, name, features, data}) {
       }
 
       rows();
-      dispatch(createProduct({id, name, features, data}));
-      resolved({id, name, features, data});
+      dispatch(createProduct({id, name, features, data, aliases}));
+      resolved({id, name, features, data, aliases});
     });
 
+  }
+}
 
 
+export function updateProductWithGenerate({id, name, features, data, aliases}) {
+  return (dispatch) => {
+    return new Promise((resolved, reject) => {
 
+      let dataTemp = [];
+
+      function rows() {
+        let indexFeature = arguments[0] ? arguments[0] : 0;
+        let indexRecorded = arguments[1] ? arguments[1] : [];
+        let indexRecordedClone;
+
+        for(let index = 0; index < parseInt(features[indexFeature].count, 10); index++) {
+
+          if(!aliases[indexFeature][index]) {
+            aliases[indexFeature].push((index + 1).toString());
+          }
+
+          if(indexFeature === features.length - 1) {
+            //最后一个feature的时候
+            //最后一个参数是第一个feature的数字，
+            indexRecordedClone = _.clone(indexRecorded);
+            indexRecordedClone.push(index);
+
+            ////这里如果是数组的话，在查找的时候数组如果是长度2的是没有顺序的WTF
+            let dataSingle = _.find(data, {flag: indexRecordedClone.join('_')});
+
+            if(dataSingle) {
+              dataTemp.push(dataSingle);
+            } else {
+              dataTemp.push({
+                flag: indexRecordedClone.join('_'),
+                count : 0
+              });
+            }
+
+          } else {
+            indexRecordedClone = _.clone(indexRecorded);
+            indexRecordedClone.push(index);
+            //如果这里的第二个参数是传递的数组，记录之前的数据 + 现在需要传递的数据
+            rows(indexFeature + 1, indexRecordedClone);
+          }
+        }
+      }
+
+      rows();
+      data = dataTemp;
+      dispatch(updateProduct({id, name, features, data, aliases}));
+      resolved({id, name, features, data, aliases});
+    })
   }
 }

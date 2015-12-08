@@ -1,6 +1,4 @@
 import React, {Component, PropTypes} from 'react';
-import LazyRender from 'react-lazy-render';
-
 import ProductTableRow from './ProductTableRow';
 
 import Loader from '../Loader';
@@ -67,19 +65,14 @@ class ProductTable extends Component {
 
 
   componentWillReceiveProps(nextProps) {
-
     if(this.props.product.id !== nextProps.product.id) {
-
       this.updateProductData(nextProps.product);
-
     }
   }
 
 
   componentWillMount() {
-
     this.updateProductData(this.props.product);
-
   }
 
 
@@ -94,35 +87,33 @@ class ProductTable extends Component {
 
   }
 
+  handleSaveAlias({indexFeature, indexAlias, name}) {
+
+    let {id} = this.props.product;
+    let alias = {indexFeature, indexAlias, name};
+
+    this.props.actions.updateProductAlias({
+      id, alias
+    });
+  }
+
 
   render() {
 
 
     let {product} = this.props;
 
-
-    let dataElements = [];
-
-
-    _.each(this.state.data, (single, index) => {
-
-      dataElements.push(
-        <ProductTableRow key={`${product.id}_${index}`}
-                         data={single}
-                         handleSaveCount={this.handleSaveCount.bind(this)}/>
-      )
-    });
+    const block = 'product';
 
 
     return (
 
       <div className='ui segment basic'>
 
-        <Loader loading={this.state.loading} />
-
-        <h3 className='ui horizontal divider header'>
-          {product.name}
-        </h3>
+        <div className='ui horizontal divider header'>
+          <span className={`${block}__title`}>{product.name}</span>
+          <div className={`ui small inline loader ${this.state.loading ? 'active' : ''} ${block}__loader`}></div>
+        </div>
 
         <table className='ui yellow table'>
           <thead>
@@ -136,7 +127,13 @@ class ProductTable extends Component {
           </thead>
           <tbody>
 
-          {dataElements}
+          {this.state.data.map((single, index) =>
+              <ProductTableRow key={`${product.id}_${index}`}
+                               aliases={product.aliases}
+                               data={single}
+                               handleSaveAlias={this.handleSaveAlias.bind(this)}
+                               handleSaveCount={this.handleSaveCount.bind(this)}/>
+          )}
 
 
           </tbody>

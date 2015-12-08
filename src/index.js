@@ -20,8 +20,8 @@ import NoMatchPage from './containers/NoMatchPage';
 import persistStateLocalStorage from 'redux-localstorage';
 
 import {__DEV_TOOL__} from './constants';
-import { devTools, persistState } from 'redux-devtools'
-import { DevTools, DebugPanel, LogMonitor } from 'redux-devtools/lib/react';
+//import { devTools, persistState } from 'redux-devtools'
+//import { DevTools, DebugPanel, LogMonitor } from 'redux-devtools/lib/react';
 
 
 
@@ -60,6 +60,7 @@ React.render(
             <Route path='dashboard' component={DashboardPage}>
               <Route path='products'>
                 <Route path='create' component={ProductEditorPage}/>
+                <Route path=':id/edit' component={ProductEditorPage}/>
                 <Route path=':id' component={ProductPage}/>
               </Route>
             </Route>

@@ -13,7 +13,7 @@ class ProductForm extends Component {
   constructor(props, context) {
     super(props, context);
 
-    let {id, name, features, data} = this.props.product;
+    let {id, name, features, data, aliases} = this.props.product;
 
 
     this.state = {
@@ -21,6 +21,7 @@ class ProductForm extends Component {
       name: name,
       features: features,
       data: data,
+      aliases: aliases,
 
       error: '',
       loading: false
@@ -28,10 +29,39 @@ class ProductForm extends Component {
   }
 
 
+  componentWillReceiveProps(nextProps) {
+    if(this.props.product.id !== nextProps.product.id) {
+      let {id, name, features, data, aliases} = nextProps.product;
+      this.setState({
+        id: id,
+        name: name,
+        features: features,
+        data: data,
+        aliases: aliases
+      });
+    }
+  }
+
+
+
+
   handleChange(e) {
     this.setState({
       [e.target.name]: e.target.value
     });
+  }
+
+
+
+  save({id, name, features, data, aliases}) {
+
+    if(!!this.state.id) {
+      return this.props.actions.updateProductWithGenerate({id, name, features, data, aliases});
+    } else {
+      id = uuid();
+      features = _.filter(features, feature => !!feature.name);
+      return this.props.actions.createProductWithGenerate({id, name, features, data, aliases});
+    }
   }
 
   handleSave(e) {
@@ -42,28 +72,19 @@ class ProductForm extends Component {
       loading : true,
     });
 
-    let {id, name, features, data} = this.state;
+    let {id, name, features, data, aliases} = this.state;
+    //将空的feature name 过滤掉
     features = _.filter(features, feature => !!feature.name);
-    if(!id) id = uuid();
 
-    this.props.actions.createProductWithGenerate({
-      id, name, features, data
-    }).then(({id, name, features, data}) => {
-
+    this.save({
+      id, name, features, data, aliases
+    }).then(({id, name, features, data, aliases}) => {
       this.props.history.pushState(null, `/dashboard/products/${id}`);
-
     }).then(() => {
       this.setState({
         loading : false,
       });
     });
-
-
-
-
-
-
-
 
   }
 
@@ -110,7 +131,7 @@ class ProductForm extends Component {
 
     let title = '添加新产品';
     if (this.state.id) {
-      title = `更新产品——${this.state.name}`;
+      title = `更新产品 ${this.state.name}`;
     }
 
     return (
@@ -163,6 +184,7 @@ class ProductForm extends Component {
                   name='features'
                   onChange={this.handleChangeFeatures.bind(this)}
                   value={_.pluck(this.state.features, 'name').join(',')}
+                  readOnly={this.state.id}
                   placeholder='属性'/>
 
               </div>

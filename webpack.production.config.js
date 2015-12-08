@@ -12,7 +12,7 @@ var semanticModulesPath = path.resolve(__dirname, 'src/semantic/definitions/modu
 
 var semanticAlias = {
   'semantic-transition':  semanticModulesPath + '/transition.js',
-  'semantic-dropdown': semanticModulesPath + '/dropdown.js',
+  'semantic-popup': semanticModulesPath + '/popup.js',
 };
 
 //node modules 路径
