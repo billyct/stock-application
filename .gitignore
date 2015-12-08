@@ -28,13 +28,5 @@ node_modules/
 
 .idea/
 
-assets/
-src/
-
-webpack.production.config.js
-webpack.stage.config.js
-webpack.config.js
 webpack-assets.json
-package.json
-gulpfile.babel.js
 .eslintrc
