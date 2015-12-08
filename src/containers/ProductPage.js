@@ -7,20 +7,33 @@ import {bindActionCreators} from 'redux';
 import * as productsActions from '../reducers/products';
 
 import ProductTable from '../components/ProductTable';
+import NoMatchPage from './NoMatchPage';
 
 class ProductPage extends Component {
+
+
+
   render() {
 
-    const {dispatch, products, history, params} = this.props;
+    const { router } = this.context;
+
+    const {dispatch, history, products, params} = this.props;
     const actions = bindActionCreators(productsActions, dispatch);
 
     let product = _.find(products,{id : params.id});
+
+    if(!product) {
+      return <NoMatchPage />
+    }
+
 
     return (
       <ProductTable actions={actions} product={product} history={history}/>
     );
   }
 }
+
+ProductPage.displayName = 'ProductPage';
 
 
 export default connect(state => {

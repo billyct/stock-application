@@ -1,230 +1,97 @@
 import React, {Component, PropTypes} from 'react';
+import LazyRender from 'react-lazy-render';
 
-import {connect} from 'react-redux';
+import ProductTableRow from './ProductTableRow';
 
-import {bindActionCreators} from 'redux';
+import Loader from '../Loader';
 
-import $ from 'jquery';
 
-const BUTTON_POPUP = 'button-popup';
 
 import './ProductTable.scss';
-
-class ProductTableRow extends Component {
-
-
-  constructor(props, context) {
-    super(props, context);
-
-    let {count, flag} = props.data;
-
-    this.state = {
-      count: count,
-      flag: flag,
-
-      plus: 0,
-      minus: 0,
-
-      error: '',
-      loading: false
-    };
-  }
-
-  componentDidMount() {
-    $(`.${BUTTON_POPUP}`)
-      .popup({
-        on: 'click'
-      })
-  }
-
-  handleChange(e) {
-    this.setState({
-      [e.target.name]: e.target.value
-    });
-  }
-
-
-  handleSaveCount() {
-
-    let {count, flag} = this.state;
-
-    this.props.handleSaveCount({
-      flag, count
-    });
-
-    $(`.${BUTTON_POPUP}`).popup('hide');
-  }
-
-  handlePlusCount() {
-
-    let {count, plus} = this.state;
-
-    this.setState({
-      count : parseInt(count, 10) + parseInt(plus, 10)
-    });
-
-    this.handleSaveCount();
-  }
-
-  handleMinusCount() {
-    let {count, minus} = this.state;
-
-    this.setState({
-      count : parseInt(count, 10) - parseInt(minus, 10)
-    });
-
-    this.handleSaveCount();
-  }
-
-  render() {
-
-    let {indexRecorded, indexCurrent} = this.props;
-
-    const block = 'row';
-
-
-    return (
-
-      <tr>
-        {indexRecorded.map(index =>
-            <td key={`KEY_TD_FEATURE_${index}`}>{index}</td>
-        )}
-        <td key={`KEY_TD_FEATURE_${indexCurrent}`}>{indexCurrent}</td>
-
-        <td>
-          <a className={`ui button basic mini ${BUTTON_POPUP}`}>{this.state.count}</a>
-
-          <div className={`ui popup top left transition hidden ${block}__popup`}>
-            <div className='ui action input fluid'>
-              <input type='text'
-                     value={this.state.count}
-                     onChange={this.handleChange.bind(this)}
-                     name='count'/>
-              <button
-                className='ui teal mini button'
-                onClick={this.handleSaveCount.bind(this)}>
-                保存
-              </button>
-            </div>
-          </div>
-        </td>
-
-        <td>
-
-          <a className={`ui button icon circular basic ${BUTTON_POPUP}`}>
-            <i className={`plus icon ${block}__icon`}></i>
-          </a>
-
-          <div className={`ui popup top left transition hidden ${block}__popup`}>
-            <div className='ui action input fluid'>
-              <input type='text'
-                     value={this.state.plus}
-                     onChange={this.handleChange.bind(this)}
-                     name='plus'/>
-              <button
-                className='ui teal mini button'
-                onClick={this.handlePlusCount.bind(this)}>
-                增加
-              </button>
-            </div>
-          </div>
-
-          <a className={`ui button icon circular basic ${BUTTON_POPUP}`}>
-            <i className={`minus icon ${block}__icon`}></i>
-          </a>
-          <div className={`ui popup top left transition hidden ${block}__popup`}>
-            <div className='ui action input fluid'>
-              <input type='text'
-                     value={this.state.minus}
-                     onChange={this.handleChange.bind(this)}
-                     name='minus'/>
-              <button
-                className='ui teal mini button'
-                onClick={this.handleMinusCount.bind(this)}>
-                减少
-              </button>
-            </div>
-          </div>
-
-        </td>
-      </tr>
-
-    )
-
-  }
-}
 
 
 class ProductTable extends Component {
 
-
   constructor(props, context) {
     super(props, context);
 
-    let {id, name, features, data} = this.props.product;
-
-
+    //const {data} = props.product;
     this.state = {
-      id: id,
-      name: name,
-      features: features,
-      data: data,
-
-      error: '',
-      loading: false
-    };
+      data : [],
+      loading : false
+    }
   }
+
+
+  updateProductData(product) {
+
+    this.setState({
+      data : [],
+      loading : true
+    });
+
+    let start = 0,
+      range = 10,
+      end = start + range;
+
+
+    this.timer = setInterval(function() {
+
+
+      if(start > product.data.length - 1) {
+        clearInterval(this.timer);
+        this.setState({
+          loading : false
+        });
+        this.timer = null;
+      }
+
+      if(end > product.data.length) {
+        end = product.data.length;
+      }
+
+
+      this.setState({
+        data : this.state.data.concat(product.data.slice(start, end))
+      });
+
+
+      start = start + range;
+      end = start + range;
+
+
+
+    }.bind(this));
+
+  }
+
+
+  componentWillReceiveProps(nextProps) {
+
+    if(this.props.product.id !== nextProps.product.id) {
+
+      this.updateProductData(nextProps.product);
+
+    }
+  }
+
+
+  componentWillMount() {
+
+    this.updateProductData(this.props.product);
+
+  }
+
 
   handleSaveCount({flag, count}) {
 
-    let {id} = this.state;
+    let {id} = this.props.product;
     let data = {flag, count};
 
     this.props.actions.updateProductData({
       id, data
     });
 
-
-  }
-
-
-
-  renderRows() {
-
-    let {product} = this.props;
-    let rows = [];
-    let _this = this;
-
-    function __rows() {
-      let indexFeature = arguments[0] ? arguments[0] : 0;
-      let indexRecorded = arguments[1] ? arguments[1] : [];
-      for(let index = 1; index <= parseInt(product.features[indexFeature].count, 10); index++) {
-        if(indexFeature === product.features.length - 1) {
-          //最后一个feature的时候
-          //最后一个参数是第一个feature的数字，
-
-          let flag = `${indexRecorded.join('_')}_${index}`;
-
-
-          let data = _.find(product.data, {flag: flag}) || {flag: flag, count: 0};
-
-          rows.push(<ProductTableRow key={`KEY_TR_FEATURE_${flag}`}
-                                     data={data}
-                                     handleSaveCount={_this.handleSaveCount.bind(_this)}
-                                     indexRecorded={indexRecorded}
-                                     indexCurrent={index} />);
-        } else {
-          let indexRecordedClone = _.clone(indexRecorded);
-          indexRecordedClone.push(index);
-          //如果这里的第二个参数是传递的数组，记录之前的数据 + 现在需要传递的数据
-          __rows(indexFeature + 1, indexRecordedClone);
-        }
-      }
-    };
-
-    __rows();
-
-    return rows;
   }
 
 
@@ -234,11 +101,24 @@ class ProductTable extends Component {
     let {product} = this.props;
 
 
+    let dataElements = [];
+
+
+    _.each(this.state.data, (single, index) => {
+
+      dataElements.push(
+        <ProductTableRow key={`${product.id}_${index}`}
+                         data={single}
+                         handleSaveCount={this.handleSaveCount.bind(this)}/>
+      )
+    });
 
 
     return (
 
       <div className='ui segment basic'>
+
+        <Loader loading={this.state.loading} />
 
         <h3 className='ui horizontal divider header'>
           {product.name}
@@ -256,7 +136,9 @@ class ProductTable extends Component {
           </thead>
           <tbody>
 
-          {this.renderRows()}
+          {dataElements}
+
+
           </tbody>
         </table>
 
@@ -266,5 +148,6 @@ class ProductTable extends Component {
   }
 }
 
+ProductTable.displayName = 'ProductTable';
 
 export default ProductTable

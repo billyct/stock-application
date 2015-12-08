@@ -5,4 +5,4 @@ export const SVG_URL = '/dist/icons/sprites.svg';//这个是根据gulp生成svg�
 
 let NODE_ENV = __ENV__ || 'development';
 
-export const __DEV_TOOL__ = (NODE_ENV === 'development');
+export const __DEV_TOOL__ = false;

@@ -7,8 +7,6 @@ import Message from '../Message';
 
 import {uuid} from '../../helpers';
 
-import { updatePath } from 'redux-simple-router'
-
 
 class ProductForm extends Component {
 
@@ -45,21 +43,27 @@ class ProductForm extends Component {
     });
 
     let {id, name, features, data} = this.state;
-
     features = _.filter(features, feature => !!feature.name);
+    if(!id) id = uuid();
 
-    this.props.actions.createProduct({
+    this.props.actions.createProductWithGenerate({
       id, name, features, data
+    }).then(({id, name, features, data}) => {
+
+      this.props.history.pushState(null, `/dashboard/products/${id}`);
+
+    }).then(() => {
+      this.setState({
+        loading : false,
+      });
     });
 
 
-    this.props.history.pushState(null, `/dashboard/products`);
 
 
 
-    this.setState({
-      loading : false,
-    });
+
+
 
   }
 
@@ -169,7 +173,7 @@ class ProductForm extends Component {
             {this.state.features.map((feature, index) =>
 
 
-                <div className='inline fields' key={`KEY_FEATURE_${feature.id}`}>
+                <div className='inline fields' key={`${feature.id}`}>
 
                   <div className='two wide field'>
                   </div>
@@ -216,5 +220,9 @@ class ProductForm extends Component {
     );
   }
 }
+
+
+ProductForm.displayName = 'ProductForm';
+
 
 export default ProductForm;

@@ -15,6 +15,7 @@ import App from './containers/App';
 import DashboardPage from './containers/DashboardPage';
 import ProductEditorPage from './containers/ProductEditorPage';
 import ProductPage from './containers/ProductPage';
+import NoMatchPage from './containers/NoMatchPage';
 
 import persistStateLocalStorage from 'redux-localstorage';
 
@@ -62,6 +63,9 @@ React.render(
                 <Route path=':id' component={ProductPage}/>
               </Route>
             </Route>
+
+
+            <Route path="*" component={NoMatchPage}/>
           </Route>
         </Router>
       }

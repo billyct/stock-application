@@ -11,14 +11,7 @@ import './styles/dashboard.scss';
 
 class DashboardPage extends Component {
 
-  constructor(props, context) {
-    super(props, context);
 
-    this.state = {
-      error : ''
-    };
-
-  }
 
 
   render() {
@@ -76,8 +69,6 @@ class DashboardPage extends Component {
 
           </div>
           <div className='ui column ten wide'>
-
-            <Message message={this.state.error}/>
 
             {childElements}
           </div>

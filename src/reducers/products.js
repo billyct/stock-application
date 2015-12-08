@@ -1,6 +1,8 @@
 import {uuid} from '../helpers';
 import _ from 'lodash';
 
+import {Promise} from 'es6-promise';
+
 const CREATE = 'app/products/CREATE';
 const UPDATE = 'app/products/UPDATE';
 const UPDATE_DATA = 'app/products/UPDATE_DATA';
@@ -14,7 +16,7 @@ export default function reducers(state = [], action = {}) {
   switch (action.type) {
 
   case CREATE:
-    stateTemp.push(_.assign({}, action.data.product, {id: uuid()}));
+    stateTemp.push(_.assign({}, action.data.product));
     return stateTemp;
 
 
@@ -61,4 +63,44 @@ export function removeProduct(product) {
 
 export function updateProductData({id, data}) {
   return {type: UPDATE_DATA, data: {id, data}}
+}
+
+export function createProductWithGenerate({id, name, features, data}) {
+  return (dispatch) => {
+
+    return new Promise((resolved, reject) => {
+
+      function rows() {
+        let indexFeature = arguments[0] ? arguments[0] : 0;
+        let indexRecorded = arguments[1] ? arguments[1] : [];
+        let indexRecordedClone;
+
+        for(let index = 1; index <= parseInt(features[indexFeature].count, 10); index++) {
+          if(indexFeature === features.length - 1) {
+            //最后一个feature的时候
+            //最后一个参数是第一个feature的数字，
+            indexRecordedClone = _.clone(indexRecorded);
+            indexRecordedClone.push(index);
+            data.push({
+              flag: indexRecordedClone,
+              count : 0
+            });
+          } else {
+            indexRecordedClone = _.clone(indexRecorded);
+            indexRecordedClone.push(index);
+            //如果这里的第二个参数是传递的数组，记录之前的数据 + 现在需要传递的数据
+            rows(indexFeature + 1, indexRecordedClone);
+          }
+        }
+      }
+
+      rows();
+      dispatch(createProduct({id, name, features, data}));
+      resolved({id, name, features, data});
+    });
+
+
+
+
+  }
 }

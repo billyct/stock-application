@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "a start kit for creat an application with react and redux",
   "dependencies": {
+    "es6-promise": "^3.0.2",
     "history": "^1.12.5",
     "jquery": "^2.1.4",
     "lodash": "^3.10.1",
